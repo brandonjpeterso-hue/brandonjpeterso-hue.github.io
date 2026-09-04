@@ -1,12 +1,23 @@
 const DISCLAIMER =
   "ClearCalc is for education only and is not financial, tax, or investment advice. Results are estimates based on the numbers you enter and simplified assumptions (fixed rates, no fees unless noted). Check figures against your lender, employer, or a licensed advisor before making decisions.";
 
+const SECTIONS = [
+  { id: "debt", name: "Debt" },
+  { id: "investing", name: "Investing" },
+  { id: "everyday", name: "Everyday" },
+];
+
 const CALCULATORS = [
-  { href: "compound.html", name: "Compound interest", blurb: "See how a balance grows with regular contributions." },
-  { href: "loan.html", name: "Loan & mortgage", blurb: "Monthly payment, total interest, and a full amortization table." },
-  { href: "extra-payment.html", name: "Extra payment", blurb: "How much faster a loan is paid off with extra principal." },
-  { href: "credit-card.html", name: "Credit card payoff", blurb: "Minimum vs fixed payments, and when a balance never shrinks." },
-  { href: "savings-goal.html", name: "Savings goal", blurb: "Time to target, or the monthly amount a deadline requires." },
+  { href: "loan.html", name: "Loan & mortgage", blurb: "Monthly payment, total interest, and a full amortization table.", section: "debt" },
+  { href: "extra-payment.html", name: "Extra payment", blurb: "How much faster a loan is paid off with extra principal.", section: "debt" },
+  { href: "credit-card.html", name: "Credit card payoff", blurb: "Minimum vs fixed payments, and when a balance never shrinks.", section: "debt" },
+  { href: "snowball.html", name: "Snowball vs avalanche", blurb: "Several debts: compare months and interest under two payoff orders.", section: "debt" },
+  { href: "compound.html", name: "Compound interest", blurb: "See how a balance grows with regular contributions.", section: "investing" },
+  { href: "savings-goal.html", name: "Savings goal", blurb: "Time to target, or the monthly amount a deadline requires.", section: "investing" },
+  { href: "retirement.html", name: "401(k) / IRA", blurb: "Salary, contributions, employer match, and the free money you might leave.", section: "investing" },
+  { href: "fire.html", name: "FIRE planner", blurb: "FIRE number, years to get there, Coast FIRE, and a 4% withdrawal check.", section: "investing" },
+  { href: "rule-of-72.html", name: "Rule of 72", blurb: "Years to double at a given rate, next to the exact compound math.", section: "investing" },
+  { href: "emergency.html", name: "Emergency fund", blurb: "3, 6, or 12 months of expenses, and how long the gap takes to fill.", section: "everyday" },
 ];
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -116,7 +127,13 @@ function mountChrome(active) {
   nav.innerHTML =
     '<a class="' + home + '" href="index.html">Home</a>' +
     '<details class="nav-details"><summary aria-label="Calculators menu">Calculators <span aria-hidden="true">▾</span></summary><div class="menu">' +
-    CALCULATORS.map((c) => '<a href="' + c.href + '"' + (active === c.href ? ' class="current"' : "") + ">" + c.name + "<small>" + c.blurb + "</small></a>").join("") +
+    SECTIONS.map((section) =>
+      '<div class="menu-group"><p class="menu-label">' + section.name + "</p>" +
+      CALCULATORS.filter((c) => c.section === section.id).map((c) =>
+        '<a href="' + c.href + '"' + (active === c.href ? ' class="current"' : "") + ">" + c.name + "<small>" + c.blurb + "</small></a>"
+      ).join("") +
+      "</div>"
+    ).join("") +
     '</div></details>' +
     '<button type="button" class="icon-btn" id="theme-btn" aria-label="Toggle theme">◐</button>';
   header.appendChild(nav);

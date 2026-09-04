@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>401(k) / IRA growth — ClearCalc</title>
+  <meta name="description" content="Project 401(k) or IRA growth with contributions and employer match." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="retirement.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+    <div class="wrap">
+      <header class="page-title">
+        <h1>401(k) / IRA growth</h1>
+        <p>Project an account from salary deferrals, an optional employer match, and a constant return. Catch-up contributions and vesting are left out.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <fieldset class="radios"><legend>Account type</legend>
+              <label class="radio"><input type="radio" name="plan" value="401k" checked /> <span>401(k)<small>Employee deferral plus optional employer match. 2026 elective deferral limit is $24,500 before catch-up.</small></span></label>
+              <label class="radio"><input type="radio" name="plan" value="ira" /> <span>IRA<small>No employer match. 2026 IRA limit is $7,500 before catch-up. Income phase-outs are not modeled.</small></span></label>
+            </fieldset>
+            <div class="field"><label for="salary">Current salary</label><input id="salary" name="salary" inputmode="decimal" value="80000" /></div>
+            <div class="field"><label for="contribPct">Your contribution (% of salary)</label><input id="contribPct" name="contribPct" inputmode="decimal" value="6" /></div>
+            <div id="match-fields">
+              <div class="field"><label for="matchPercent">Match rate (%)</label><input id="matchPercent" name="matchPercent" inputmode="decimal" value="100" /><span class="hint">100 means dollar-for-dollar on the slice below.</span></div>
+              <div class="field"><label for="matchLimitPct">Match applies to first (% of salary)</label><input id="matchLimitPct" name="matchLimitPct" inputmode="decimal" value="4" /><span class="hint">Example: 100% of the first 4% of salary.</span></div>
+            </div>
+            <div class="field"><label for="current">Current balance</label><input id="current" name="current" inputmode="decimal" value="15000" /></div>
+            <div class="field"><label for="rate">Expected annual return (%)</label><input id="rate" name="rate" inputmode="decimal" value="7" /></div>
+            <div class="field"><label for="years">Years</label><input id="years" name="years" inputmode="decimal" value="25" /></div>
+            <div class="field"><label for="raisePct">Annual salary growth (%)</label><input id="raisePct" name="raisePct" inputmode="decimal" value="0" /><span class="hint">Optional. 0 keeps salary flat.</span></div>
+            <div class="field"><label for="cap">Annual employee contribution cap</label><input id="cap" name="cap" inputmode="decimal" value="24500" /><span class="hint">Leave at the IRS figure for your account, or blank for no cap.</span></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <section class="chart-card"><h3>Balance over time</h3><div class="chart-wrap"><canvas id="chart" aria-label="Retirement balance chart"></canvas></div></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Each year, your contribution is <code>salary × contribution %</code>, capped at the employee limit you enter. A 401(k) match is <code>salary × min(your %, match-limit %) × match rate</code>. Amounts are added monthly and compounded at the annual return divided by 12.</p>
+              <p>The 2026 elective deferral limit is $24,500 for 401(k)/403(b)/TSP and $7,500 for IRAs before catch-up. Limits change; this is not tax, vesting, or investment advice.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

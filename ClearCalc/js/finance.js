@@ -248,3 +248,199 @@ function monthsBetween(fromISO, toISO) {
   if (!from || !to) return null;
   return (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
 }
+
+function pickTarget(accounts, method) {
+  const live = accounts.filter((a) => a.balance > MONEY_EPS);
+  if (!live.length) return null;
+  return live.reduce((best, a) => {
+    if (method === "snowball") {
+      if (a.balance < best.balance - MONEY_EPS) return a;
+      if (Math.abs(a.balance - best.balance) <= MONEY_EPS && a.aprPct > best.aprPct) return a;
+      return best;
+    }
+    if (a.aprPct > best.aprPct + 1e-9) return a;
+    if (Math.abs(a.aprPct - best.aprPct) <= 1e-9 && a.balance < best.balance) return a;
+    return best;
+  });
+}
+
+function payoffDebts(debts, extraMonthly, method) {
+  const accounts = debts.filter((d) => d.balance > 0).map((d) => ({
+    name: (d.name || "").trim() || "Debt",
+    balance: roundCents(d.balance),
+    aprPct: Math.max(0, d.aprPct),
+    minPayment: Math.max(0, d.minPayment),
+  }));
+  const startBalance = roundCents(accounts.reduce((s, a) => s + a.balance, 0));
+  const series = [{ month: 0, balance: startBalance }];
+  const events = [];
+  let month = 0, totalInterest = 0, totalPaid = 0;
+  const extra = Math.max(0, extraMonthly);
+  while (accounts.some((a) => a.balance > MONEY_EPS) && month < MAX_MONTHS) {
+    month += 1;
+    let leftover = extra;
+    for (const a of accounts) {
+      if (a.balance <= MONEY_EPS) continue;
+      const interest = roundCents(a.balance * (a.aprPct / 100 / 12));
+      totalInterest += interest;
+      a.balance = roundCents(a.balance + interest);
+      const pay = Math.min(a.balance, a.minPayment);
+      a.balance = roundCents(a.balance - pay);
+      totalPaid += pay;
+      leftover += roundCents(Math.max(0, a.minPayment - pay));
+      if (a.balance <= MONEY_EPS) {
+        a.balance = 0;
+        events.push({ month, name: a.name });
+      }
+    }
+    leftover = roundCents(leftover);
+    while (leftover > MONEY_EPS) {
+      const target = pickTarget(accounts, method);
+      if (!target) break;
+      const pay = Math.min(target.balance, leftover);
+      target.balance = roundCents(target.balance - pay);
+      leftover = roundCents(leftover - pay);
+      totalPaid += pay;
+      if (target.balance <= MONEY_EPS) {
+        target.balance = 0;
+        if (!events.some((e) => e.name === target.name && e.month === month)) events.push({ month, name: target.name });
+      }
+    }
+    const remaining = roundCents(accounts.reduce((s, a) => s + a.balance, 0));
+    if (month <= 24 || month % 3 === 0 || remaining === 0) series.push({ month, balance: remaining });
+  }
+  const payoff = !accounts.some((a) => a.balance > MONEY_EPS);
+  if (series[series.length - 1] && series[series.length - 1].month !== month) {
+    series.push({ month, balance: roundCents(accounts.reduce((s, a) => s + a.balance, 0)) });
+  }
+  return {
+    months: payoff ? month : Infinity,
+    totalInterest: roundCents(totalInterest),
+    totalPaid: roundCents(totalPaid),
+    payoff,
+    order: [...new Set(events.map((e) => e.name))],
+    events,
+    series,
+  };
+}
+
+function retirementGrowth(opts) {
+  const years = Math.max(0, Math.round(opts.years));
+  const i = opts.annualReturnPct / 100 / 12;
+  const raise = opts.raisePct / 100;
+  const cap = opts.annualCap != null && opts.annualCap > 0 ? opts.annualCap : Infinity;
+  let salary = opts.salary, balance = opts.current, employeeTotal = 0, matchTotal = 0;
+  const series = [{ year: 0, balance: roundCents(balance), employee: 0, match: 0, growth: 0 }];
+  let firstYearEmployee = 0, firstYearMatch = 0, matchLeftOnTable = 0;
+  for (let y = 1; y <= years; y++) {
+    const uncapped = salary * (Math.max(0, opts.contribPct) / 100);
+    const employeeY = roundCents(Math.min(uncapped, cap));
+    const effectivePct = salary > 0 ? (employeeY / salary) * 100 : 0;
+    const matchY = opts.includeMatch
+      ? roundCents(salary * (Math.min(effectivePct, Math.max(0, opts.matchLimitPct)) / 100) * (Math.max(0, opts.matchPercent) / 100))
+      : 0;
+    const maxMatch = opts.includeMatch
+      ? roundCents(salary * (Math.max(0, opts.matchLimitPct) / 100) * (Math.max(0, opts.matchPercent) / 100))
+      : 0;
+    if (y === 1) {
+      firstYearEmployee = employeeY;
+      firstYearMatch = matchY;
+      matchLeftOnTable = roundCents(Math.max(0, maxMatch - matchY));
+    }
+    const empM = employeeY / 12, matchM = matchY / 12;
+    for (let m = 0; m < 12; m++) balance = i === 0 ? balance + empM + matchM : balance * (1 + i) + empM + matchM;
+    employeeTotal += employeeY;
+    matchTotal += matchY;
+    salary *= 1 + raise;
+    series.push({
+      year: y,
+      balance: roundCents(balance),
+      employee: roundCents(employeeTotal),
+      match: roundCents(matchTotal),
+      growth: roundCents(balance - opts.current - employeeTotal - matchTotal),
+    });
+  }
+  const futureValue = roundCents(balance);
+  return {
+    futureValue,
+    employeeTotal: roundCents(employeeTotal),
+    matchTotal: roundCents(matchTotal),
+    growth: roundCents(futureValue - opts.current - employeeTotal - matchTotal),
+    firstYearEmployee,
+    firstYearMatch,
+    matchLeftOnTable,
+    capped: opts.salary * (opts.contribPct / 100) > cap + MONEY_EPS,
+    series,
+  };
+}
+
+function firePlan(opts) {
+  const w = opts.withdrawalPct / 100;
+  const fireNumber = w > 0 ? roundCents(opts.annualSpend / w) : Infinity;
+  const currentIncome = roundCents(opts.current * w);
+  const fireIncome = roundCents(opts.annualSpend);
+  const time = Number.isFinite(fireNumber)
+    ? savingsTimeToGoal({ target: fireNumber, current: opts.current, annualReturnPct: opts.annualReturnPct, monthlyContribution: opts.monthlyContribution })
+    : { months: Infinity, reachable: false, alreadyThere: false };
+  const nCoast = Math.max(0, Math.round(opts.yearsToRetire * 12));
+  const i = opts.annualReturnPct / 100 / 12;
+  let coastNeededNow = fireNumber;
+  if (Number.isFinite(fireNumber) && nCoast > 0) coastNeededNow = i === 0 ? fireNumber : roundCents(fireNumber / Math.pow(1 + i, nCoast));
+  const coastGap = Number.isFinite(coastNeededNow) ? roundCents(Math.max(0, coastNeededNow - opts.current)) : Infinity;
+  const alreadyCoasting = Number.isFinite(coastNeededNow) && opts.current + MONEY_EPS >= coastNeededNow;
+  let yearsToCoast = Infinity, coastReachable = false;
+  if (Number.isFinite(fireNumber)) {
+    if (opts.current + MONEY_EPS >= fireNumber) { yearsToCoast = 0; coastReachable = true; }
+    else if (opts.current > 0 && opts.annualReturnPct > 0) {
+      const months = Math.ceil(Math.log(fireNumber / opts.current) / Math.log(1 + i));
+      if (Number.isFinite(months) && months >= 0 && months <= MAX_MONTHS) { yearsToCoast = months / 12; coastReachable = true; }
+      else if (Number.isFinite(months) && months > MAX_MONTHS) yearsToCoast = months / 12;
+    } else if (opts.current > 0 && opts.annualReturnPct === 0) {
+      yearsToCoast = opts.current + MONEY_EPS >= fireNumber ? 0 : Infinity;
+      coastReachable = yearsToCoast === 0;
+    }
+  }
+  const yearsPlot = Math.max(1, Math.min(50, Math.ceil(Math.max(opts.yearsToRetire || 0, time.reachable ? time.months / 12 : 0, coastReachable && Number.isFinite(yearsToCoast) ? yearsToCoast : 0, 10))));
+  const series = [];
+  for (let y = 0; y <= yearsPlot; y++) {
+    const m = y * 12;
+    series.push({
+      year: y,
+      withContrib: roundCents(fvSavings(opts.current, i, m, opts.monthlyContribution)),
+      coast: roundCents(fvSavings(opts.current, i, m, 0)),
+      fire: Number.isFinite(fireNumber) ? fireNumber : 0,
+    });
+  }
+  return {
+    fireNumber: Number.isFinite(fireNumber) ? fireNumber : 0,
+    yearsToFire: time.alreadyThere ? 0 : time.months / 12,
+    fireReachable: time.reachable,
+    alreadyThere: time.alreadyThere,
+    currentIncome,
+    fireIncome,
+    coastNeededNow: Number.isFinite(coastNeededNow) ? coastNeededNow : 0,
+    coastGap: Number.isFinite(coastGap) ? coastGap : 0,
+    alreadyCoasting,
+    yearsToCoast,
+    coastReachable,
+    series,
+  };
+}
+
+function ruleOf72Years(ratePct) {
+  if (!Number.isFinite(ratePct) || ratePct <= 0 || ratePct > 100) return null;
+  return { approx: 72 / ratePct, exact: Math.log(2) / Math.log(1 + ratePct / 100) };
+}
+function ruleOf72Rate(years) {
+  if (!Number.isFinite(years) || years <= 0 || years > 200) return null;
+  return { approx: 72 / years, exact: (Math.pow(2, 1 / years) - 1) * 100 };
+}
+function emergencyFund(opts) {
+  const target = roundCents(Math.max(0, opts.monthlyExpenses) * Math.max(0, opts.months));
+  const gap = roundCents(Math.max(0, target - Math.max(0, opts.current)));
+  if (gap <= MONEY_EPS) return { target, gap: 0, monthsToFill: 0, funded: true, reachable: true };
+  if (opts.monthlyContribution <= 0) return { target, gap, monthsToFill: Infinity, funded: false, reachable: false };
+  const monthsToFill = Math.ceil(gap / opts.monthlyContribution);
+  return { target, gap, monthsToFill, funded: false, reachable: monthsToFill <= MAX_MONTHS };
+}
+

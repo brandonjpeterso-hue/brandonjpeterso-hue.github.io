@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Emergency fund — ClearCalc</title>
+  <meta name="description" content="Size a 3, 6, or 12 month emergency fund and see how long the gap takes to fill." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="emergency.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Emergency fund</h1>
+        <p>A cash target of 3, 6, or 12 months of expenses — or a custom length — and how long the gap takes to fill at a monthly deposit. No investment return is assumed.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="expenses">Monthly expenses</label><input id="expenses" name="expenses" inputmode="decimal" value="3500" /></div>
+            <fieldset class="radios"><legend>Target months</legend>
+              <label class="radio"><input type="radio" name="months" value="3" /> <span>3 months<small>A common floor for stable income.</small></span></label>
+              <label class="radio"><input type="radio" name="months" value="6" checked /> <span>6 months<small>A typical recommendation for many households.</small></span></label>
+              <label class="radio"><input type="radio" name="months" value="12" /> <span>12 months<small>A larger buffer for variable income.</small></span></label>
+              <label class="radio"><input type="radio" name="months" value="custom" /> <span>Custom<small>Pick your own number of months.</small></span></label>
+            </fieldset>
+            <div class="field" id="custom-months" hidden><label for="customMonths">Custom months</label><input id="customMonths" name="customMonths" inputmode="decimal" value="9" /></div>
+            <div class="field"><label for="current">Already saved toward it</label><input id="current" name="current" inputmode="decimal" value="2000" /></div>
+            <div class="field"><label for="contribution">Monthly amount you can add</label><input id="contribution" name="contribution" inputmode="decimal" value="300" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Target is <code>monthly expenses × months</code>. The gap is target minus what you already have. Months to fill is the gap divided by your monthly deposit, rounded up. This treats the fund as cash — no yield, no inflation.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

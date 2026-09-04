@@ -79,8 +79,14 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .nav summary::-webkit-details-marker { display: none; }
 .menu {
   position: absolute; right: 0; z-index: 50; margin-top: 0.25rem;
-  width: min(calc(100vw - 2rem), 18rem); padding: 0.4rem;
+  width: min(calc(100vw - 2rem), 20rem); padding: 0.4rem;
   background: var(--card); border-radius: 0.75rem; box-shadow: var(--shadow);
+  max-height: min(70vh, 32rem); overflow: auto;
+}
+.menu-label {
+  padding: 0.5rem 0.75rem 0.15rem;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted); margin: 0;
 }
 .menu a { display: block; height: auto; padding: 0.65rem 0.75rem; color: var(--fg); }
 .menu a small { display: block; font-weight: 400; color: var(--muted); font-size: 0.75rem; }
@@ -92,6 +98,14 @@ main { flex: 1; padding: 2rem 0 3rem; }
 .kicker { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); }
 .hero h1 { font-size: clamp(2.1rem, 4vw, 3rem); line-height: 1.15; letter-spacing: -0.03em; margin: 0.75rem 0 1rem; }
 .hero p, .blurb { color: var(--muted); font-size: 1.125rem; }
+.section-block { margin-top: 2.75rem; }
+.section-block h2 { font-size: 1.5rem; margin: 0 0 0.35rem; }
+.section-block .lede { margin: 0 0 1rem; color: var(--muted); font-size: 0.95rem; }
+.debt-card { border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.85rem; margin-bottom: 0.65rem; background: var(--card); }
+.debt-card .debt-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+.debt-card .debt-head span { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.compare-grid { display: grid; gap: 1rem; }
+@media (min-width: 640px) { .compare-grid { grid-template-columns: 1fr 1fr; } }
 .grid { display: grid; gap: 1rem; min-width: 0; }
 .layout > * { min-width: 0; max-width: 100%; }
 @media (min-width: 640px) { .cards { grid-template-columns: 1fr 1fr; } .stats { grid-template-columns: 1fr 1fr; } }
