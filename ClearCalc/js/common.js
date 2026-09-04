@@ -2,9 +2,9 @@ const DISCLAIMER =
   "ClearCalc is for education only and is not financial, tax, or investment advice. Results are estimates based on the numbers you enter and simplified assumptions (fixed rates, no fees unless noted). Check figures against your lender, employer, or a licensed advisor before making decisions.";
 
 const SECTIONS = [
-  { id: "debt", name: "Debt" },
-  { id: "investing", name: "Investing" },
-  { id: "everyday", name: "Everyday" },
+  { id: "debt", name: "Debt", tab: "Debt calculators" },
+  { id: "investing", name: "Investing", tab: "Investing calculators" },
+  { id: "everyday", name: "Everyday", tab: "Everyday calculators" },
 ];
 
 const CALCULATORS = [
@@ -124,23 +124,43 @@ function mountChrome(active) {
   nav.className = "nav";
   nav.setAttribute("aria-label", "Primary");
   const home = active === "home" ? " current" : "";
+  const activeSection = (CALCULATORS.find((c) => c.href === active) || {}).section;
   nav.innerHTML =
-    '<a class="' + home + '" href="index.html">Home</a>' +
-    '<details class="nav-details"><summary aria-label="Calculators menu">Calculators <span aria-hidden="true">▾</span></summary><div class="menu">' +
-    SECTIONS.map((section) =>
-      '<div class="menu-group"><p class="menu-label">' + section.name + "</p>" +
-      CALCULATORS.filter((c) => c.section === section.id).map((c) =>
-        '<a href="' + c.href + '"' + (active === c.href ? ' class="current"' : "") + ">" + c.name + "<small>" + c.blurb + "</small></a>"
-      ).join("") +
-      "</div>"
-    ).join("") +
-    '</div></details>' +
-    '<button type="button" class="icon-btn" id="theme-btn" aria-label="Toggle theme">◐</button>';
+    '<a class="home-link' + home + '" href="index.html">Home</a>' +
+    SECTIONS.map((section) => {
+      const current = activeSection === section.id ? " current" : "";
+      return (
+        '<details class="nav-details">' +
+        '<summary class="' + current + '" aria-label="' + section.tab + '">' +
+        '<span class="tab-row"><span class="tab-short">' + section.name + "</span>" +
+        '<span class="tab-long">' + section.tab + "</span>" +
+        ' <span aria-hidden="true">▾</span></span></summary>' +
+        '<div class="menu">' +
+        CALCULATORS.filter((c) => c.section === section.id).map((c) =>
+          '<a href="' + c.href + '"' + (active === c.href ? ' class="current"' : "") + ">" +
+          c.name + "<small>" + c.blurb + "</small></a>"
+        ).join("") +
+        "</div></details>"
+      );
+    }).join("");
   header.appendChild(nav);
+  const themeBtn = document.createElement("button");
+  themeBtn.type = "button";
+  themeBtn.className = "icon-btn";
+  themeBtn.id = "theme-btn";
+  themeBtn.setAttribute("aria-label", "Toggle theme");
+  themeBtn.textContent = "◐";
+  header.appendChild(themeBtn);
   document.getElementById("theme-btn").addEventListener("click", toggleTheme);
-  const details = nav.querySelector("details");
+  const menus = nav.querySelectorAll("details");
+  menus.forEach((d) => {
+    d.addEventListener("toggle", () => {
+      if (!d.open) return;
+      menus.forEach((o) => { if (o !== d) o.open = false; });
+    });
+  });
   document.addEventListener("pointerdown", (e) => {
-    if (details.open && !details.contains(e.target)) details.open = false;
+    if (!nav.contains(e.target)) menus.forEach((d) => { d.open = false; });
   });
   document.querySelector(".footer-inner").innerHTML =
     "<p>" + DISCLAIMER + "</p><p>Do not rely on these estimates for returns, product choices, or borrowing decisions.</p>";
