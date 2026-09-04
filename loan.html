@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loan & mortgage — ClearCalc</title>
+  <meta name="description" content="Estimate a fixed principal-and-interest payment and amortization schedule." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="loan.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Loan & mortgage</h1>
+        <p>Estimate a fixed principal-and-interest payment, total interest, and a year-by-year plus monthly amortization schedule.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="amount">Loan amount</label><input id="amount" name="amount" inputmode="decimal" value="350000" /></div>
+            <div class="field"><label for="rate">Annual interest rate (%)</label><input id="rate" name="rate" inputmode="decimal" value="6.5" /></div>
+            <div class="field"><label for="years">Term (years)</label><input id="years" name="years" inputmode="decimal" value="30" /></div>
+            <div class="field"><label for="start">Start date</label><input id="start" name="start" type="date" /><span class="hint">Optional. Used for the payoff date and schedule dates.</span></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <div id="extra"></div>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>For a fixed-rate fully amortizing loan, <code>M = P × [r (1 + r)ⁿ] / [(1 + r)ⁿ − 1]</code> where <code>r</code> is the monthly rate and <code>n</code> is months. If the rate is 0%, <code>M = P / n</code>.</p>
+              <p>Each month, interest is charged on the remaining balance; the rest reduces principal. Taxes, insurance, fees, and variable rates are not included.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

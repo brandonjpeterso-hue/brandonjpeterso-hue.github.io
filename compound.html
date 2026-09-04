@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Compound interest — ClearCalc</title>
+  <meta name="description" content="Project a starting balance plus optional monthly contributions." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="compound.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Compound interest</h1>
+        <p>Project a starting balance plus optional monthly contributions, using the compounding frequency you choose.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky" aria-labelledby="inputs-heading">
+          <h2 id="inputs-heading">Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="principal">Starting principal</label><input id="principal" name="principal" inputmode="decimal" value="10000" /></div>
+            <div class="field"><label for="rate">Annual interest rate (%)</label><input id="rate" name="rate" inputmode="decimal" value="7" /></div>
+            <div class="field"><label for="years">Years</label><input id="years" name="years" inputmode="decimal" value="20" /></div>
+            <div class="field"><label for="frequency">Compounding frequency</label>
+              <select id="frequency" name="frequency">
+                <option value="daily">Daily</option>
+                <option value="monthly" selected>Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="annually">Annually</option>
+              </select>
+            </div>
+            <div class="field"><label for="contribution">Monthly contribution</label><input id="contribution" name="contribution" inputmode="decimal" value="200" /><span class="hint">Optional. Leave at 0 for a lump sum only.</span></div>
+            <fieldset class="radios"><legend>Contribution timing</legend>
+              <label class="radio"><input type="radio" name="timing" value="end" checked /> <span>End of each period<small>Ordinary annuity — the usual default.</small></span></label>
+              <label class="radio"><input type="radio" name="timing" value="beginning" /> <span>Beginning of each period<small>Annuity due — each deposit earns one extra period.</small></span></label>
+            </fieldset>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <section class="chart-card"><h3>Contributions vs growth</h3><div class="chart-wrap"><canvas id="chart" aria-label="Chart of contributions versus interest"></canvas></div></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>The future value is a lump sum grown at the periodic rate, plus the future value of an annuity at the same rate. A monthly contribution is converted to an equivalent deposit per compounding period.</p>
+              <p>Periodic rate <code>i = r / n</code>, periods <code>N = n × t</code>.</p>
+              <p>Lump sum: <code>P × (1 + i)ᴺ</code>. Ordinary annuity: <code>PMT × [((1 + i)ᴺ − 1) / i]</code>. Annuity due multiplies that by <code>(1 + i)</code>. If <code>i = 0</code>, growth is principal plus deposits.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

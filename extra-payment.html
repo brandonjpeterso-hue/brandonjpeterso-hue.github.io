@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Extra payment savings — ClearCalc</title>
+  <meta name="description" content="Compare a standard amortization with extra principal payments." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="extra-payment.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Extra payment savings</h1>
+        <p>Compare a standard amortization with extra monthly principal, plus an optional one-time extra payment.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="amount">Loan amount</label><input id="amount" name="amount" inputmode="decimal" value="350000" /></div>
+            <div class="field"><label for="rate">Annual interest rate (%)</label><input id="rate" name="rate" inputmode="decimal" value="6.5" /></div>
+            <div class="field"><label for="years">Term (years)</label><input id="years" name="years" inputmode="decimal" value="30" /></div>
+            <div class="field"><label for="start">Start date</label><input id="start" name="start" type="date" /></div>
+            <div class="field"><label for="extraMonthly">Extra monthly payment</label><input id="extraMonthly" name="extraMonthly" inputmode="decimal" value="200" /></div>
+            <div class="field"><label for="oneTimeMonth">One-time extra (month number)</label><input id="oneTimeMonth" name="oneTimeMonth" inputmode="numeric" /><span class="hint">Optional. Month 1 is the first payment.</span></div>
+            <div class="field"><label for="oneTimeAmount">One-time extra amount</label><input id="oneTimeAmount" name="oneTimeAmount" inputmode="decimal" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <section class="chart-card"><h3>Remaining balance</h3><div class="chart-wrap"><canvas id="chart" aria-label="Remaining balance comparison chart"></canvas></div></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>The baseline uses the same fixed payment as the loan calculator. Extra amounts are applied to principal after that month’s interest is charged. Interest saved is baseline interest minus interest in the extra-payment plan. Fees and prepayment penalties are not modeled.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

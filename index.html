@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ClearCalc — ClearCalc</title>
+  <meta name="description" content="Educational calculators for compounding, loans, extra payments, credit cards, and savings goals. Estimates only — not financial advice." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="home">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+
+    <div class="wrap">
+      <section class="hero">
+        <p class="kicker">Educational calculators</p>
+        <h1>See how money grows, and what borrowing really costs.</h1>
+        <p>Five in-browser tools for compounding, loans, extra payments, credit cards, and savings timelines. Figures are estimates from the numbers you enter — not advice.</p>
+      </section>
+      <ul class="grid cards" style="list-style:none;padding:0;margin:0">
+        <li><a class="card" href="compound.html"><h3>Compound interest</h3><p>See how a balance grows with regular contributions.</p><span class="go">Open calculator →</span></a></li>
+        <li><a class="card" href="loan.html"><h3>Loan & mortgage</h3><p>Monthly payment, total interest, and a full amortization table.</p><span class="go">Open calculator →</span></a></li>
+        <li><a class="card" href="extra-payment.html"><h3>Extra payment</h3><p>How much faster a loan is paid off with extra principal.</p><span class="go">Open calculator →</span></a></li>
+        <li><a class="card" href="credit-card.html"><h3>Credit card payoff</h3><p>Minimum vs fixed payments, and when a balance never shrinks.</p><span class="go">Open calculator →</span></a></li>
+        <li><a class="card" href="savings-goal.html"><h3>Savings goal</h3><p>Time to target, or the monthly amount a deadline requires.</p><span class="go">Open calculator →</span></a></li>
+      </ul>
+    </div>
+
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Credit card payoff — ClearCalc</title>
+  <meta name="description" content="Estimate how long a card balance takes to clear." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="credit-card.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Credit card payoff</h1>
+        <p>Estimate how long a card balance takes to clear on a minimum-payment rule or a fixed monthly amount you choose.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="balance">Current balance</label><input id="balance" name="balance" inputmode="decimal" value="8500" /></div>
+            <div class="field"><label for="apr">APR (%)</label><input id="apr" name="apr" inputmode="decimal" value="22.99" /></div>
+            <fieldset class="radios"><legend>Payment rule</legend>
+              <label class="radio"><input type="radio" name="mode" value="minimum" /> <span>Minimum payments<small>Greater of $25 or the selected percent of balance plus that month’s interest.</small></span></label>
+              <label class="radio"><input type="radio" name="mode" value="fixed" checked /> <span>Fixed monthly payment<small>The same dollar amount each month until the balance is gone.</small></span></label>
+            </fieldset>
+            <div class="field"><label for="minPercent">Minimum percent of balance</label>
+              <select id="minPercent" name="minPercent">
+                <option>1</option><option>1.5</option><option selected>2</option><option>2.5</option><option>3</option>
+              </select>
+            </div>
+            <div class="field"><label for="fixed">Fixed monthly payment</label><input id="fixed" name="fixed" inputmode="decimal" value="250" /></div>
+            <label class="check"><input type="checkbox" name="compare" checked /> Compare minimum payments vs fixed payment</label>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Monthly interest is <code>balance × APR / 12</code>. A minimum payment is the greater of $25 or (selected % of the current balance + that month’s interest). If the payment is less than or equal to the interest charged, the balance does not decline. Results are capped at 60 years of payments.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

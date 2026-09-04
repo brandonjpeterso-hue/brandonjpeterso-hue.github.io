@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Savings goal — ClearCalc</title>
+  <meta name="description" content="Solve for time to a savings target or the contribution a deadline requires." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="savings-goal.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Savings goal</h1>
+        <p>Solve for how long a monthly contribution takes to reach a target, or for the contribution a deadline requires.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="target">Target amount</label><input id="target" name="target" inputmode="decimal" value="50000" /></div>
+            <div class="field"><label for="current">Current savings</label><input id="current" name="current" inputmode="decimal" value="8000" /></div>
+            <div class="field"><label for="rate">Annual return (%)</label><input id="rate" name="rate" inputmode="decimal" value="6" /><span class="hint">A constant rate used for the projection — not a promised return.</span></div>
+            <fieldset class="radios"><legend>Solve for</legend>
+              <label class="radio"><input type="radio" name="mode" value="time" checked /> <span>Time to reach the goal<small>Given the monthly contribution.</small></span></label>
+              <label class="radio"><input type="radio" name="mode" value="pmt" /> <span>Monthly contribution needed<small>Given a target date.</small></span></label>
+            </fieldset>
+            <div class="field" id="contrib-field"><label for="contribution">Monthly contribution</label><input id="contribution" name="contribution" inputmode="decimal" value="400" /></div>
+            <div class="field" id="date-field" hidden><label for="deadline">Target date</label><input id="deadline" name="deadline" type="date" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <section class="chart-card"><h3>Projected balance vs target</h3><div class="chart-wrap"><canvas id="chart" aria-label="Projected balance versus target"></canvas></div></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Projections use a constant monthly rate <code>i = annual return / 12</code> and end-of-month deposits: <code>FV = PV × (1 + i)ᵗ + PMT × [((1 + i)ᵗ − 1) / i]</code>. Returns are assumed constant and fee-free. This is an estimate, not a forecast.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
