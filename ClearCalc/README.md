@@ -2,7 +2,7 @@
 
 Educational calculators for compounding, loan cost, and savings timelines. All math runs in the browser. ClearCalc is **not** financial, tax, or investment advice.
 
-**Live site:** https://brandonjpeterso-hue.github.io/
+Live site (GitHub Pages): https://brandonjpeterso-hue.github.io/ClearCalc/
 
 ## Calculators
 
@@ -23,7 +23,9 @@ Chart.js is loaded from a CDN. Everything else is local.
 
 ## GitHub Pages
 
-The live site is published from [brandonjpeterso-hue.github.io](https://github.com/brandonjpeterso-hue/brandonjpeterso-hue.github.io) (`main` branch, root).
+The live site is **https://brandonjpeterso-hue.github.io/ClearCalc/**.
+
+It is published as a folder on the user site (`brandonjpeterso-hue.github.io/ClearCalc/`). The repo root at `https://brandonjpeterso-hue.github.io/` redirects there.
 
 ## Disclaimer
 

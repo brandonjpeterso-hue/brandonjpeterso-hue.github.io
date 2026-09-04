@@ -127,6 +127,14 @@ function mountChrome(active) {
   });
   document.querySelector(".footer-inner").innerHTML =
     "<p>" + DISCLAIMER + "</p><p>Do not rely on these estimates for returns, product choices, or borrowing decisions.</p>";
+  const form = document.getElementById("form");
+  const results = document.getElementById("results");
+  if (form && results && !form.querySelector(".jump-results")) {
+    const p = document.createElement("p");
+    p.className = "jump-results";
+    p.innerHTML = '<a href="#results">View results</a>';
+    form.appendChild(p);
+  }
 }
 
 function stat(label, value, large) {
