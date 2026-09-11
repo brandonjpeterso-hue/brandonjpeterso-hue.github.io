@@ -447,20 +447,26 @@ function pageFire() {
   const results = document.getElementById("results");
   const canvas = document.getElementById("chart");
   bindForm(form, "clearcalc-fire", () => {
+    const wrap = document.getElementById("raise-wrap");
+    if (wrap) wrap.hidden = !(form.raiseOn && form.raiseOn.checked);
     const spend = parseNum(form.spend.value), withdrawal = parseNum(form.withdrawal.value);
     const current = parseNum(form.current.value) ?? 0, contribution = parseNum(form.contribution.value) ?? 0;
     const rate = parseNum(form.rate.value), yearsToRetire = parseNum(form.yearsToRetire.value);
+    const raiseOn = form.raiseOn && form.raiseOn.checked;
+    const raisePct = raiseOn ? parseNum(form.raisePct.value) : 0;
     destroyChart(canvas);
-    if (spend == null || spend <= 0 || withdrawal == null || withdrawal <= 0 || withdrawal > 20 || rate == null || rate < 0 || rate > 50 || current < 0 || contribution < 0 || yearsToRetire == null || yearsToRetire < 0 || yearsToRetire > 60) {
-      results.innerHTML = '<p class="muted">Enter spending above 0, a withdrawal rate from 0–20% (not including 0), a return from 0–50%, and years until you want to stop contributing.</p>';
+    if (spend == null || spend <= 0 || withdrawal == null || withdrawal <= 0 || withdrawal > 20 || rate == null || rate < 0 || rate > 50 || current < 0 || contribution < 0 || yearsToRetire == null || yearsToRetire < 0 || yearsToRetire > 60 || (raiseOn && (raisePct == null || raisePct < 0 || raisePct > 20))) {
+      results.innerHTML = '<p class="muted">Enter spending above 0, a withdrawal rate from 0–20% (not including 0), a return from 0–50%, and years until you want to stop contributing.' + (raiseOn ? " Annual contribution increase must be 0–20%." : "") + "</p>";
       return;
     }
-    const r = firePlan({ annualSpend: spend, withdrawalPct: withdrawal, current, monthlyContribution: contribution, annualReturnPct: rate, yearsToRetire });
+    const r = firePlan({ annualSpend: spend, withdrawalPct: withdrawal, current, monthlyContribution: contribution, annualReturnPct: rate, yearsToRetire, raisePct: raisePct || 0 });
+    const zeroLabel = r.depletes ? formatMonths(r.yearsToZero * 12) : "Does not hit $0";
     results.innerHTML = stat("FIRE number", formatMoney(r.fireNumber), true) +
       '<p class="muted">' + formatMoney(r.fireIncome) + " per year at your withdrawal rate.</p>" +
       '<div class="grid stats">' +
       stat("Years to FIRE (with contributions)", r.alreadyThere ? "Already there" : r.fireReachable ? formatMonths(r.yearsToFire * 12) : "Beyond 60 years") +
-      stat("Safe withdrawal from current nest egg", formatMoney(r.currentIncome)) + "</div>" +
+      stat("Safe withdrawal from current nest egg", formatMoney(r.currentIncome)) +
+      stat("Years until today's nest egg hits $0", zeroLabel) + "</div>" +
       '<div class="card"><h3 class="kicker">Coast FIRE</h3>' +
       '<div class="grid stats">' +
       stat("Nest egg needed today to coast", formatMoney(r.coastNeededNow)) +

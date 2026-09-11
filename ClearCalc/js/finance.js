@@ -374,16 +374,65 @@ function retirementGrowth(opts) {
   };
 }
 
+function monthsUntilDepleted(pv, annualSpend, annualReturnPct) {
+  const w = annualSpend / 12;
+  const i = annualReturnPct / 100 / 12;
+  if (pv <= MONEY_EPS) return { months: 0, depletes: true };
+  if (w <= MONEY_EPS) return { months: Infinity, depletes: false };
+  if (i === 0) {
+    const months = Math.ceil(pv / w);
+    return { months: months, depletes: Number.isFinite(months) && months > 0 && months <= MAX_MONTHS };
+  }
+  if (w <= pv * i + 1e-12) return { months: Infinity, depletes: false };
+  const n = Math.log(w / (w - pv * i)) / Math.log(1 + i);
+  if (!Number.isFinite(n) || n < 0) return { months: Infinity, depletes: false };
+  const months = Math.max(1, Math.ceil(n));
+  return { months: months, depletes: months <= MAX_MONTHS };
+}
+
+function simulateSteppedSavings(pv, i, pmt0, raisePct, months) {
+  var bal = pv, pmt = pmt0, raise = raisePct / 100, m;
+  for (m = 1; m <= months; m++) {
+    if (raise > 0 && m > 1 && (m - 1) % 12 === 0) pmt *= 1 + raise;
+    bal = i === 0 ? bal + pmt : bal * (1 + i) + pmt;
+  }
+  return bal;
+}
+
+function monthsToGoalStepped(target, pv, i, pmt0, raisePct) {
+  if (pv + MONEY_EPS >= target) return { months: 0, reachable: true };
+  var bal = pv, pmt = pmt0, raise = raisePct / 100, m;
+  for (m = 1; m <= MAX_MONTHS; m++) {
+    if (raise > 0 && m > 1 && (m - 1) % 12 === 0) pmt *= 1 + raise;
+    bal = i === 0 ? bal + pmt : bal * (1 + i) + pmt;
+    if (bal + MONEY_EPS >= target) return { months: m, reachable: true };
+  }
+  return { months: Infinity, reachable: false };
+}
+
 function firePlan(opts) {
   const w = opts.withdrawalPct / 100;
+  const raisePct = opts.raisePct && opts.raisePct > 0 ? opts.raisePct : 0;
   const fireNumber = w > 0 ? roundCents(opts.annualSpend / w) : Infinity;
   const currentIncome = roundCents(opts.current * w);
   const fireIncome = roundCents(opts.annualSpend);
-  const time = Number.isFinite(fireNumber)
-    ? savingsTimeToGoal({ target: fireNumber, current: opts.current, annualReturnPct: opts.annualReturnPct, monthlyContribution: opts.monthlyContribution })
-    : { months: Infinity, reachable: false, alreadyThere: false };
-  const nCoast = Math.max(0, Math.round(opts.yearsToRetire * 12));
   const i = opts.annualReturnPct / 100 / 12;
+  let time;
+  if (!Number.isFinite(fireNumber)) {
+    time = { months: Infinity, reachable: false, alreadyThere: false };
+  } else if (raisePct > 0) {
+    if (opts.current + MONEY_EPS >= fireNumber) {
+      time = { months: 0, reachable: true, alreadyThere: true };
+    } else {
+      const stepped = monthsToGoalStepped(fireNumber, opts.current, i, opts.monthlyContribution, raisePct);
+      time = { months: stepped.months, reachable: stepped.reachable, alreadyThere: false };
+    }
+  } else {
+    time = Number.isFinite(fireNumber)
+      ? savingsTimeToGoal({ target: fireNumber, current: opts.current, annualReturnPct: opts.annualReturnPct, monthlyContribution: opts.monthlyContribution })
+      : { months: Infinity, reachable: false, alreadyThere: false };
+  }
+  const nCoast = Math.max(0, Math.round(opts.yearsToRetire * 12));
   let coastNeededNow = fireNumber;
   if (Number.isFinite(fireNumber) && nCoast > 0) coastNeededNow = i === 0 ? fireNumber : roundCents(fireNumber / Math.pow(1 + i, nCoast));
   const coastGap = Number.isFinite(coastNeededNow) ? roundCents(Math.max(0, coastNeededNow - opts.current)) : Infinity;
@@ -400,13 +449,14 @@ function firePlan(opts) {
       coastReachable = yearsToCoast === 0;
     }
   }
+  const zero = monthsUntilDepleted(opts.current, opts.annualSpend, opts.annualReturnPct);
   const yearsPlot = Math.max(1, Math.min(50, Math.ceil(Math.max(opts.yearsToRetire || 0, time.reachable ? time.months / 12 : 0, coastReachable && Number.isFinite(yearsToCoast) ? yearsToCoast : 0, 10))));
   const series = [];
   for (let y = 0; y <= yearsPlot; y++) {
     const m = y * 12;
     series.push({
       year: y,
-      withContrib: roundCents(fvSavings(opts.current, i, m, opts.monthlyContribution)),
+      withContrib: roundCents(raisePct > 0 ? simulateSteppedSavings(opts.current, i, opts.monthlyContribution, raisePct, m) : fvSavings(opts.current, i, m, opts.monthlyContribution)),
       coast: roundCents(fvSavings(opts.current, i, m, 0)),
       fire: Number.isFinite(fireNumber) ? fireNumber : 0,
     });
@@ -423,6 +473,9 @@ function firePlan(opts) {
     alreadyCoasting,
     yearsToCoast,
     coastReachable,
+    yearsToZero: zero.months / 12,
+    depletes: zero.depletes,
+    raisePct: raisePct,
     series,
   };
 }

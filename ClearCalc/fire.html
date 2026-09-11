@@ -36,6 +36,8 @@
             <div class="field"><label for="withdrawal">Withdrawal rate (%)</label><input id="withdrawal" name="withdrawal" inputmode="decimal" value="4" /><span class="hint">4% is the common rule of thumb (nest egg = spending × 25).</span></div>
             <div class="field"><label for="current">Current invested</label><input id="current" name="current" inputmode="decimal" value="80000" /></div>
             <div class="field"><label for="contribution">Monthly contribution</label><input id="contribution" name="contribution" inputmode="decimal" value="1500" /></div>
+            <label class="check"><input id="raiseOn" name="raiseOn" type="checkbox" /> Increase contributions once a year<span class="hint" style="display:block">Models a raise: bump the monthly amount at the start of each year.</span></label>
+            <div class="field" id="raise-wrap" hidden><label for="raisePct">Annual contribution increase (%)</label><input id="raisePct" name="raisePct" inputmode="decimal" value="3" /><span class="hint">3% is a typical yearly raise. Applied once per year after the first 12 months.</span></div>
             <div class="field"><label for="rate">Expected annual return (%)</label><input id="rate" name="rate" inputmode="decimal" value="7" /></div>
             <div class="field"><label for="yearsToRetire">Years until you want to stop contributing</label><input id="yearsToRetire" name="yearsToRetire" inputmode="decimal" value="20" /><span class="hint">Used for the Coast FIRE nest egg.</span></div>
           </form>
@@ -45,8 +47,8 @@
           <section class="chart-card"><h3>Nest egg vs FIRE number</h3><div class="chart-wrap"><canvas id="chart" aria-label="FIRE nest egg chart"></canvas></div></section>
           <details class="how"><summary>How this is calculated</summary>
             <div class="how-body">
-              <p>FIRE number is <code>annual spending ÷ withdrawal rate</code>. At 4% that is spending × 25. Years to FIRE uses the same monthly compound math as the savings-goal calculator.</p>
-              <p>Coast FIRE is the amount that would grow to the FIRE number by the year you chose with no further contributions: <code>FIRE number ÷ (1 + r)ⁿ</code>. Markets, inflation, taxes, and sequence risk are not in this model.</p>
+              <p>FIRE number is <code>annual spending ÷ withdrawal rate</code>. At 4% that is spending × 25. Years to FIRE uses the same monthly compound math as the savings-goal calculator. If you turn on a yearly raise, that contribution grows by your raise % after every 12 months.</p>
+              <p>Coast FIRE is the amount that would grow to the FIRE number by the year you chose with no further contributions: <code>FIRE number ÷ (1 + r)ⁿ</code>. Years to $0 starts from today’s nest egg, withdraws spending ÷ 12 each month, and compounds the remainder at your expected return. If growth covers the withdrawal, the balance never hits $0 here. Markets, inflation, taxes, and sequence risk are not in this model.</p>
             </div>
           </details>
         </div>
