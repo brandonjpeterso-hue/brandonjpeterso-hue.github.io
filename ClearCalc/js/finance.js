@@ -390,6 +390,22 @@ function monthsUntilDepleted(pv, annualSpend, annualReturnPct) {
   return { months: months, depletes: months <= MAX_MONTHS };
 }
 
+function monthsUntilDepletedInflated(pv, annualSpend, annualReturnPct, inflationPct) {
+  if (!(inflationPct > 0)) return monthsUntilDepleted(pv, annualSpend, annualReturnPct);
+  const i = annualReturnPct / 100 / 12;
+  const inf = inflationPct / 100;
+  if (pv <= MONEY_EPS) return { months: 0, depletes: true };
+  var w = annualSpend / 12;
+  if (w <= MONEY_EPS) return { months: Infinity, depletes: false };
+  var bal = pv, m;
+  for (m = 1; m <= MAX_MONTHS; m++) {
+    if (m > 1 && (m - 1) % 12 === 0) w *= 1 + inf;
+    bal = i === 0 ? bal - w : bal * (1 + i) - w;
+    if (bal <= MONEY_EPS) return { months: m, depletes: true };
+  }
+  return { months: Infinity, depletes: false };
+}
+
 function simulateSteppedSavings(pv, i, pmt0, raisePct, months) {
   var bal = pv, pmt = pmt0, raise = raisePct / 100, m;
   for (m = 1; m <= months; m++) {
@@ -413,6 +429,7 @@ function monthsToGoalStepped(target, pv, i, pmt0, raisePct) {
 function firePlan(opts) {
   const w = opts.withdrawalPct / 100;
   const raisePct = opts.raisePct && opts.raisePct > 0 ? opts.raisePct : 0;
+  const inflationPct = opts.inflationPct && opts.inflationPct > 0 ? opts.inflationPct : 0;
   const fireNumber = w > 0 ? roundCents(opts.annualSpend / w) : Infinity;
   const currentIncome = roundCents(opts.current * w);
   const fireIncome = roundCents(opts.annualSpend);
@@ -449,7 +466,7 @@ function firePlan(opts) {
       coastReachable = yearsToCoast === 0;
     }
   }
-  const zero = monthsUntilDepleted(opts.current, opts.annualSpend, opts.annualReturnPct);
+  const zero = monthsUntilDepletedInflated(opts.current, opts.annualSpend, opts.annualReturnPct, inflationPct);
   const yearsPlot = Math.max(1, Math.min(50, Math.ceil(Math.max(opts.yearsToRetire || 0, time.reachable ? time.months / 12 : 0, coastReachable && Number.isFinite(yearsToCoast) ? yearsToCoast : 0, 10))));
   const series = [];
   for (let y = 0; y <= yearsPlot; y++) {
@@ -476,6 +493,7 @@ function firePlan(opts) {
     yearsToZero: zero.months / 12,
     depletes: zero.depletes,
     raisePct: raisePct,
+    inflationPct: inflationPct,
     series,
   };
 }
@@ -495,5 +513,102 @@ function emergencyFund(opts) {
   if (opts.monthlyContribution <= 0) return { target, gap, monthsToFill: Infinity, funded: false, reachable: false };
   const monthsToFill = Math.ceil(gap / opts.monthlyContribution);
   return { target, gap, monthsToFill, funded: false, reachable: monthsToFill <= MAX_MONTHS };
+}
+
+var RMD_FACTORS = [27.4,26.5,25.5,24.6,23.7,22.9,22.0,21.1,20.2,19.4,18.5,17.7,16.8,16.0,15.2,14.4,13.7,12.9,12.2,11.5,10.8,10.1,9.5,8.9,8.4,7.8,7.3,6.8,6.4,6.0,5.6,5.2,4.9,4.6,4.3,4.1,3.9,3.7,3.5,3.4,3.3,3.1,3.0,2.9,2.8,2.7,2.5,2.3,2.0];
+
+function rmdFactor(age) {
+  var a = Math.floor(age);
+  if (!Number.isFinite(a) || a < 72) return null;
+  if (a >= 120) return 2;
+  return RMD_FACTORS[a - 72];
+}
+
+function requiredMinimumDistribution(opts) {
+  var factor = rmdFactor(opts.age);
+  if (factor == null || opts.priorBalance < 0) return { factor: null, annual: 0, monthly: 0, percent: 0, tableApplies: false };
+  var annual = roundCents(opts.priorBalance / factor);
+  return { factor: factor, annual: annual, monthly: roundCents(annual / 12), percent: (1 / factor) * 100, tableApplies: true };
+}
+
+var SS_MIN = 62 * 12, SS_MAX = 70 * 12;
+
+function ssMonthlyBenefit(piaMonthly, fraMonths, claimMonths) {
+  var claim = Math.min(SS_MAX, Math.max(SS_MIN, Math.round(claimMonths)));
+  var fra = Math.round(fraMonths);
+  if (claim < fra) {
+    var early = fra - claim, first = Math.min(early, 36), rest = Math.max(0, early - 36);
+    var reduction = (first * (5 / 9)) / 100 + (rest * (5 / 12)) / 100;
+    return roundCents(piaMonthly * (1 - reduction));
+  }
+  if (claim > fra) {
+    var delay = Math.min(claim - fra, SS_MAX - fra);
+    return roundCents(piaMonthly * (1 + (delay * (2 / 3)) / 100));
+  }
+  return roundCents(piaMonthly);
+}
+
+function ssBreakevenMonths(earlyAge, earlyPay, laterAge, laterPay) {
+  if (laterAge <= earlyAge || laterPay <= earlyPay + 0.005) return null;
+  return laterAge + (earlyPay * (laterAge - earlyAge)) / (laterPay - earlyPay);
+}
+
+function socialSecurityClaim(opts) {
+  var through = Math.min(120, Math.max(62, opts.throughAge));
+  var throughMonths = Math.round(through * 12);
+  var points = [
+    { key: "62", label: "Age 62", ageMonths: SS_MIN },
+    { key: "fra", label: "Full retirement age", ageMonths: Math.round(opts.fraMonths) },
+    { key: "70", label: "Age 70", ageMonths: SS_MAX },
+  ];
+  var rows = points.map(function (p) {
+    var monthly = ssMonthlyBenefit(opts.piaMonthly, opts.fraMonths, p.ageMonths);
+    var monthsPaid = Math.max(0, throughMonths - p.ageMonths);
+    return { key: p.key, label: p.label, ageMonths: p.ageMonths, monthly: monthly, annual: roundCents(monthly * 12), pctOfPia: opts.piaMonthly > 0 ? (monthly / opts.piaMonthly) * 100 : 0, collected: roundCents(monthly * monthsPaid) };
+  });
+  var byKey = {};
+  rows.forEach(function (r) { byKey[r.key] = r; });
+  function pair(a, b, label) { return { label: label, ageMonths: ssBreakevenMonths(a.ageMonths, a.monthly, b.ageMonths, b.monthly) }; }
+  return { rows: rows, breakevens: [pair(byKey["62"], byKey.fra, "Age 62 vs full retirement age"), pair(byKey.fra, byKey["70"], "Full retirement age vs 70"), pair(byKey["62"], byKey["70"], "Age 62 vs 70")] };
+}
+
+function retirementPaycheck(opts) {
+  var guaranteed = roundCents(Math.max(0, opts.socialSecurity) + Math.max(0, opts.pension) + Math.max(0, opts.other));
+  var draw = roundCents((Math.max(0, opts.portfolio) * Math.max(0, opts.withdrawalPct)) / 100 / 12);
+  var total = roundCents(guaranteed + draw);
+  var gap = roundCents(opts.spending - total);
+  var rate = opts.withdrawalPct / 100;
+  var extraPortfolio = gap > MONEY_EPS && rate > 0 ? roundCents((gap * 12) / rate) : 0;
+  return { guaranteed: guaranteed, draw: draw, total: total, gap: gap, extraPortfolio: extraPortfolio };
+}
+
+function pensionVsLump(opts) {
+  var survivorMonthly = roundCents(Math.max(0, opts.monthly) * (Math.max(0, opts.survivorPct) / 100));
+  var horizon = Math.max(0, Math.round((120 - opts.age) * 12));
+  var limit = Math.min(MAX_MONTHS, horizon);
+  var pay = Math.max(0, opts.monthly), bal = Math.max(0, opts.lump);
+  var i = opts.annualReturnPct / 100 / 12, cola = Math.max(0, opts.colaPct) / 100;
+  var collected = 0, monthsToZero = Infinity;
+  var monthsTo90 = Math.max(0, Math.round((90 - opts.age) * 12)), collectedBy90 = 0, m;
+  if (pay <= MONEY_EPS) return { survivorMonthly: survivorMonthly, depletes: false, monthsToZero: Infinity, ageAtZero: null, collectedBy90: 0 };
+  for (m = 1; m <= limit; m++) {
+    if (cola > 0 && m > 1 && (m - 1) % 12 === 0) pay *= 1 + cola;
+    collected += pay;
+    if (m <= monthsTo90) collectedBy90 = collected;
+    if (monthsToZero === Infinity) {
+      bal = i === 0 ? bal - pay : bal * (1 + i) - pay;
+      if (bal <= MONEY_EPS) monthsToZero = m;
+    }
+  }
+  if (monthsTo90 > limit) collectedBy90 = collected;
+  return { survivorMonthly: survivorMonthly, depletes: Number.isFinite(monthsToZero), monthsToZero: monthsToZero, ageAtZero: Number.isFinite(monthsToZero) ? opts.age + monthsToZero / 12 : null, collectedBy90: roundCents(collectedBy90) };
+}
+
+function survivorIncome(opts) {
+  var ssSurvivor = roundCents(Math.max(opts.ssYou, opts.ssSpouse));
+  var both = roundCents(opts.ssYou + opts.ssSpouse + opts.pensionYou + opts.pensionSpouse + opts.other);
+  var ifYouDie = roundCents(ssSurvivor + opts.pensionYou * (opts.pensionYouSurvivorPct / 100) + opts.pensionSpouse + opts.other);
+  var ifSpouseDies = roundCents(ssSurvivor + opts.pensionYou + opts.pensionSpouse * (opts.pensionSpouseSurvivorPct / 100) + opts.other);
+  return { both: both, ifYouDie: ifYouDie, ifSpouseDies: ifSpouseDies, dropIfYouDie: roundCents(both - ifYouDie), dropIfSpouseDies: roundCents(both - ifSpouseDies), ssSurvivor: ssSurvivor };
 }
 

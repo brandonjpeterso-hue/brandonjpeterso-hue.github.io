@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pension vs lump sum — ClearCalc</title>
+  <meta name="description" content="How long a lump sum lasts if you withdraw the pension amount." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="pension.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Pension vs lump sum</h1>
+        <p>Take the monthly pension, or invest the lump sum and withdraw that same check. Shows when the lump would run out, and what a survivor would be paid.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="monthly">Monthly pension</label><input id="monthly" name="monthly" inputmode="decimal" value="1500" /></div>
+            <div class="field"><label for="cola">Pension cost-of-living raise (% per year)</label><input id="cola" name="cola" inputmode="decimal" value="0" /><span class="hint">0 if the check never increases.</span></div>
+            <div class="field"><label for="lump">Lump sum offer</label><input id="lump" name="lump" inputmode="decimal" value="350000" /></div>
+            <div class="field"><label for="rate">Expected return if you invest the lump (%)</label><input id="rate" name="rate" inputmode="decimal" value="5" /></div>
+            <div class="field"><label for="age">Your age when payments would start</label><input id="age" name="age" inputmode="decimal" value="65" /></div>
+            <div class="field"><label for="survivor">Survivor gets this % of the pension</label><input id="survivor" name="survivor" inputmode="decimal" value="50" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>The lump is invested at your expected return. Each month it grows, then the pension amount is withdrawn. A COLA raises that withdrawal once a year. The age shown is when the lump hits $0.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

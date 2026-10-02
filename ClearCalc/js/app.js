@@ -236,6 +236,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (page === "fire.html") pageFire();
   if (page === "emergency.html") pageEmergency();
   if (page === "rule-of-72.html") pageRule72();
+  if (page === "social-security.html") pageSocial();
+  if (page === "paycheck.html") pagePaycheck();
+  if (page === "rmd.html") pageRmd();
+  if (page === "pension.html") pagePension();
+  if (page === "survivor.html") pageSurvivor();
 });
 
 function pageHome() {
@@ -245,6 +250,7 @@ function pageHome() {
     debt: "What a balance costs, and how extra payments change the timeline.",
     investing: "Compounding, retirement accounts, and a simple independence number.",
     everyday: "Cash buffers and a quick doubling rule.",
+    retirement: "Claiming Social Security, a monthly paycheck, and what happens if one of you dies.",
   };
   host.innerHTML = SECTIONS.map((section) =>
     '<section class="section-block" aria-labelledby="' + section.id + '-heading">' +
@@ -449,17 +455,21 @@ function pageFire() {
   bindForm(form, "clearcalc-fire", () => {
     const wrap = document.getElementById("raise-wrap");
     if (wrap) wrap.hidden = !(form.raiseOn && form.raiseOn.checked);
+    const infWrap = document.getElementById("inflation-wrap");
+    if (infWrap) infWrap.hidden = !(form.inflationOn && form.inflationOn.checked);
     const spend = parseNum(form.spend.value), withdrawal = parseNum(form.withdrawal.value);
     const current = parseNum(form.current.value) ?? 0, contribution = parseNum(form.contribution.value) ?? 0;
     const rate = parseNum(form.rate.value), yearsToRetire = parseNum(form.yearsToRetire.value);
     const raiseOn = form.raiseOn && form.raiseOn.checked;
     const raisePct = raiseOn ? parseNum(form.raisePct.value) : 0;
+    const inflationOn = form.inflationOn && form.inflationOn.checked;
+    const inflationPct = inflationOn ? parseNum(form.inflationPct.value) : 0;
     destroyChart(canvas);
-    if (spend == null || spend <= 0 || withdrawal == null || withdrawal <= 0 || withdrawal > 20 || rate == null || rate < 0 || rate > 50 || current < 0 || contribution < 0 || yearsToRetire == null || yearsToRetire < 0 || yearsToRetire > 60 || (raiseOn && (raisePct == null || raisePct < 0 || raisePct > 20))) {
-      results.innerHTML = '<p class="muted">Enter spending above 0, a withdrawal rate from 0–20% (not including 0), a return from 0–50%, and years until you want to stop contributing.' + (raiseOn ? " Annual contribution increase must be 0–20%." : "") + "</p>";
+    if (spend == null || spend <= 0 || withdrawal == null || withdrawal <= 0 || withdrawal > 20 || rate == null || rate < 0 || rate > 50 || current < 0 || contribution < 0 || yearsToRetire == null || yearsToRetire < 0 || yearsToRetire > 60 || (raiseOn && (raisePct == null || raisePct < 0 || raisePct > 20)) || (inflationOn && (inflationPct == null || inflationPct < 0 || inflationPct > 15))) {
+      results.innerHTML = '<p class="muted">Enter spending above 0, a withdrawal rate from 0–20% (not including 0), a return from 0–50%, and years until you want to stop contributing.' + (raiseOn ? " Annual contribution increase must be 0–20%." : "") + (inflationOn ? " Inflation must be 0–15%." : "") + "</p>";
       return;
     }
-    const r = firePlan({ annualSpend: spend, withdrawalPct: withdrawal, current, monthlyContribution: contribution, annualReturnPct: rate, yearsToRetire, raisePct: raisePct || 0 });
+    const r = firePlan({ annualSpend: spend, withdrawalPct: withdrawal, current, monthlyContribution: contribution, annualReturnPct: rate, yearsToRetire, raisePct: raisePct || 0, inflationPct: inflationPct || 0 });
     const zeroLabel = r.depletes ? formatMonths(r.yearsToZero * 12) : "Does not hit $0";
     results.innerHTML = stat("FIRE number", formatMoney(r.fireNumber), true) +
       '<p class="muted">' + formatMoney(r.fireIncome) + " per year at your withdrawal rate.</p>" +
@@ -526,6 +536,103 @@ function pageRule72() {
       if (!r) { results.innerHTML = '<p class="muted">Enter years greater than 0.</p>'; return; }
       results.innerHTML = '<div class="grid stats">' + stat("Rule of 72 rate", r.approx.toFixed(2) + "%", true) + stat("Exact rate", r.exact.toFixed(2) + "%") + "</div>";
     }
+  });
+}
+
+function pageSocial() {
+  const form = document.getElementById("form");
+  const results = document.getElementById("results");
+  bindForm(form, "clearcalc-ss", () => {
+    const pia = parseNum(form.pia.value), fra = parseNum(form.fra.value), through = parseNum(form.through.value);
+    if (pia == null || pia <= 0 || fra == null || through == null || through < 70 || through > 120) {
+      results.innerHTML = '<p class="muted">Enter a benefit above $0 and an age from 70 to 120.</p>';
+      return;
+    }
+    const r = socialSecurityClaim({ piaMonthly: pia, fraMonths: fra, throughAge: through });
+    results.innerHTML = r.rows.map((row) => stat(row.label, formatMoney(row.monthly), row.key === "fra") + '<p class="muted">' + formatPercent(row.pctOfPia, 1) + " of the full benefit · " + formatMoney(row.annual) + " a year · " + formatMoney(row.collected) + " collected through the age you picked.</p>").join("") +
+      '<div class="card"><h3 class="kicker">Breakeven</h3>' + r.breakevens.map((b) => stat(b.label, b.ageMonths == null ? "No crossover" : formatAgeMonths(b.ageMonths))).join("") + "</div>";
+  });
+}
+
+function pagePaycheck() {
+  const form = document.getElementById("form");
+  const results = document.getElementById("results");
+  bindForm(form, "clearcalc-paycheck", () => {
+    const ss = parseNum(form.ss.value) ?? 0, pension = parseNum(form.pension.value) ?? 0, other = parseNum(form.other.value) ?? 0;
+    const portfolio = parseNum(form.portfolio.value) ?? 0, withdrawal = parseNum(form.withdrawal.value), spending = parseNum(form.spending.value);
+    if ([ss, pension, other, portfolio].some((n) => n < 0) || withdrawal == null || withdrawal < 0 || withdrawal > 20 || spending == null || spending < 0) {
+      results.innerHTML = '<p class="muted">Enter a withdrawal rate from 0–20% and spending that isn’t negative.</p>';
+      return;
+    }
+    const r = retirementPaycheck({ socialSecurity: ss, pension, other, portfolio, withdrawalPct: withdrawal, spending });
+    const gapLabel = r.gap > 0.005 ? "Monthly gap" : r.gap < -0.005 ? "Monthly surplus" : "Monthly budget";
+    results.innerHTML = stat(gapLabel, formatMoney(Math.abs(r.gap)), true) +
+      '<div class="grid stats">' +
+      stat("Guaranteed monthly income", formatMoney(r.guaranteed)) +
+      stat("Portfolio withdrawal", formatMoney(r.draw)) +
+      stat("Total monthly paycheck", formatMoney(r.total)) +
+      stat("Extra portfolio to close a gap", r.extraPortfolio > 0 ? formatMoney(r.extraPortfolio) : "None") +
+      "</div>";
+  });
+}
+
+function pageRmd() {
+  const form = document.getElementById("form");
+  const results = document.getElementById("results");
+  bindForm(form, "clearcalc-rmd", () => {
+    const age = parseNum(form.age.value), balance = parseNum(form.balance.value);
+    if (age == null || age < 0 || age > 130 || balance == null || balance < 0) {
+      results.innerHTML = '<p class="muted">Enter an age and a balance that isn’t negative.</p>';
+      return;
+    }
+    const r = requiredMinimumDistribution({ age, priorBalance: balance });
+    if (!r.tableApplies) {
+      results.innerHTML = '<p class="muted">The Uniform Lifetime Table used here starts at age 72. Required distributions generally begin at 73, or 75 if you were born in 1960 or later.</p>';
+      return;
+    }
+    results.innerHTML = stat("Required withdrawal this year", formatMoney(r.annual), true) +
+      '<p class="muted">' + formatMoney(r.monthly) + " a month if you spread it evenly.</p>" +
+      '<div class="grid stats">' + stat("Table factor", r.factor.toFixed(1)) + stat("Share of the balance", formatPercent(r.percent, 2)) + "</div>" +
+      (age < 73 ? '<p class="muted">The table has a factor at this age, but required distributions generally start at 73 — or 75 if you were born in 1960 or later.</p>' : "");
+  });
+}
+
+function pagePension() {
+  const form = document.getElementById("form");
+  const results = document.getElementById("results");
+  bindForm(form, "clearcalc-pension", () => {
+    const monthly = parseNum(form.monthly.value), cola = parseNum(form.cola.value), lump = parseNum(form.lump.value);
+    const rate = parseNum(form.rate.value), age = parseNum(form.age.value), survivor = parseNum(form.survivor.value);
+    if (monthly == null || monthly < 0 || lump == null || lump < 0 || cola == null || cola < 0 || cola > 10 || rate == null || rate < 0 || rate > 20 || age == null || age < 40 || age > 100 || survivor == null || survivor < 0 || survivor > 100) {
+      results.innerHTML = '<p class="muted">Enter a pension, a lump sum, a return from 0–20%, a COLA from 0–10%, an age from 40–100, and a survivor share from 0–100%.</p>';
+      return;
+    }
+    const r = pensionVsLump({ monthly, colaPct: cola, lump, annualReturnPct: rate, age, survivorPct: survivor });
+    results.innerHTML = stat("Lump sum lasts", r.depletes && r.ageAtZero != null ? formatAgeMonths(r.ageAtZero * 12) : "Indefinitely at this return", true) +
+      '<div class="grid stats">' +
+      stat("Pension collected by age 90", formatMoney(r.collectedBy90)) +
+      stat("Survivor monthly pension", formatMoney(r.survivorMonthly)) +
+      "</div>";
+  });
+}
+
+function pageSurvivor() {
+  const form = document.getElementById("form");
+  const results = document.getElementById("results");
+  bindForm(form, "clearcalc-survivor", () => {
+    const ssYou = parseNum(form.ssYou.value) ?? 0, ssSpouse = parseNum(form.ssSpouse.value) ?? 0;
+    const pensionYou = parseNum(form.pensionYou.value) ?? 0, pensionSpouse = parseNum(form.pensionSpouse.value) ?? 0;
+    const survYou = parseNum(form.survYou.value), survSpouse = parseNum(form.survSpouse.value), other = parseNum(form.other.value) ?? 0;
+    if ([ssYou, ssSpouse, pensionYou, pensionSpouse, other].some((n) => n < 0) || survYou == null || survSpouse == null || survYou < 0 || survSpouse < 0 || survYou > 100 || survSpouse > 100) {
+      results.innerHTML = '<p class="muted">Enter incomes that aren’t negative, and survivor shares from 0–100%.</p>';
+      return;
+    }
+    const r = survivorIncome({ ssYou, ssSpouse, pensionYou, pensionYouSurvivorPct: survYou, pensionSpouse, pensionSpouseSurvivorPct: survSpouse, other });
+    results.innerHTML = stat("Both living", formatMoney(r.both), true) +
+      '<div class="grid stats">' +
+      stat("If you die", formatMoney(r.ifYouDie)) +
+      stat("If your spouse dies", formatMoney(r.ifSpouseDies)) +
+      "</div>";
   });
 }
 

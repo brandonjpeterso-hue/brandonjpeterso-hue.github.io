@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retirement paycheck — ClearCalc</title>
+  <meta name="description" content="Social Security, pension, and a portfolio withdrawal versus monthly spending." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="paycheck.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Retirement paycheck</h1>
+        <p>Social Security, pension, and a portfolio withdrawal, next to what you plan to spend. The leftover is a monthly surplus or a gap.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="ss">Monthly Social Security</label><input id="ss" name="ss" inputmode="decimal" value="1800" /></div>
+            <div class="field"><label for="pension">Monthly pension</label><input id="pension" name="pension" inputmode="decimal" value="400" /></div>
+            <div class="field"><label for="other">Other monthly income</label><input id="other" name="other" inputmode="decimal" value="0" /></div>
+            <div class="field"><label for="portfolio">Invested portfolio</label><input id="portfolio" name="portfolio" inputmode="decimal" value="500000" /></div>
+            <div class="field"><label for="withdrawal">Withdrawal rate (%)</label><input id="withdrawal" name="withdrawal" inputmode="decimal" value="4" /><span class="hint">4% of the portfolio per year is the common starting point.</span></div>
+            <div class="field"><label for="spending">Monthly spending</label><input id="spending" name="spending" inputmode="decimal" value="4500" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Portfolio draw is <code>portfolio × withdrawal rate ÷ 12</code>. Total paycheck adds Social Security, pension, and other income. Extra portfolio needed is <code>monthly gap × 12 ÷ withdrawal rate</code>.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

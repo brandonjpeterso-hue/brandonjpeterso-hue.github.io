@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Survivor income — ClearCalc</title>
+  <meta name="description" content="Monthly income left if you or your spouse dies." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="survivor.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Survivor income</h1>
+        <p>What monthly income is left if one of you dies. Social Security is simplified to the higher of the two checks. A pension continues only at the survivor percent you enter.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="ssYou">Your monthly Social Security</label><input id="ssYou" name="ssYou" inputmode="decimal" value="2200" /></div>
+            <div class="field"><label for="ssSpouse">Spouse’s monthly Social Security</label><input id="ssSpouse" name="ssSpouse" inputmode="decimal" value="1400" /></div>
+            <div class="field"><label for="pensionYou">Your monthly pension</label><input id="pensionYou" name="pensionYou" inputmode="decimal" value="1200" /></div>
+            <div class="field"><label for="survYou">Survivor share of your pension (%)</label><input id="survYou" name="survYou" inputmode="decimal" value="50" /></div>
+            <div class="field"><label for="pensionSpouse">Spouse’s monthly pension</label><input id="pensionSpouse" name="pensionSpouse" inputmode="decimal" value="0" /></div>
+            <div class="field"><label for="survSpouse">Survivor share of spouse’s pension (%)</label><input id="survSpouse" name="survSpouse" inputmode="decimal" value="0" /></div>
+            <div class="field"><label for="other">Other monthly income that continues</label><input id="other" name="other" inputmode="decimal" value="0" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>While both are living, income is the sum of both Social Security benefits, both pensions, and other income. After a death, Social Security is modeled as the larger of the two benefits only. Each pension continues at the survivor percent you entered.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Social Security claiming — ClearCalc</title>
+  <meta name="description" content="Compare Social Security at 62, full retirement age, and 70." />
+  <meta name="theme-color" content="#1B5E45" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script>
+    (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
+  </script>
+</head>
+<body data-page="social-security.html">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="header"><div class="header-inner">
+    <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
+  </div></header>
+  <main id="main">
+    <div class="wrap">
+      <header class="page-title">
+        <h1>Social Security claiming</h1>
+        <p>Compare a benefit taken at 62, at full retirement age, and at 70. Uses the standard early-claim reduction and delayed credits. No cost-of-living raises.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="pia">Monthly benefit at full retirement age</label><input id="pia" name="pia" inputmode="decimal" value="2000" /><span class="hint">The amount on your statement at full retirement age.</span></div>
+            <div class="field"><label for="fra">Your full retirement age</label>
+              <select id="fra" name="fra">
+                <option value="792">66 (born 1943–1954)</option>
+                <option value="794">66 and 2 months (1955)</option>
+                <option value="796">66 and 4 months (1956)</option>
+                <option value="798">66 and 6 months (1957)</option>
+                <option value="800">66 and 8 months (1958)</option>
+                <option value="802">66 and 10 months (1959)</option>
+                <option value="804" selected>67 (1960 or later)</option>
+              </select>
+            </div>
+            <div class="field"><label for="through">Add up benefits through age</label><input id="through" name="through" inputmode="decimal" value="90" /><span class="hint">Used only for the lifetime total.</span></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Early claims are reduced by 5/9 of 1% per month for the first 36 months before full retirement age, then 5/12 of 1% per month. Waiting past full retirement age adds 2/3 of 1% per month until 70. Breakeven ignores inflation, taxes, and survivor benefits.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer"><div class="footer-inner"></div></footer>
+  <script src="js/finance.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

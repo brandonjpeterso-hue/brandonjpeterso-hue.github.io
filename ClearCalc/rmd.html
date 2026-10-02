@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ClearCalc — educational finance calculators</title>
-  <meta name="description" content="Educational calculators for debt, investing, and everyday money questions. Estimates only — not financial advice." />
+  <title>Required minimum distribution — ClearCalc</title>
+  <meta name="description" content="IRA required withdrawal from age and last December’s balance." />
   <meta name="theme-color" content="#1B5E45" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
@@ -17,22 +17,35 @@
     (function(){try{var t=localStorage.getItem('clearcalc-theme');if(t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark'}else{document.documentElement.style.colorScheme='light'}}catch(e){}})();
   </script>
 </head>
-<body data-page="home">
+<body data-page="rmd.html">
   <a class="skip" href="#main">Skip to content</a>
   <header class="header"><div class="header-inner">
     <a class="brand" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="currentColor"/><path d="M8 22V14h3v8H8zm6 0V10h3v12h-3zm6 0V16h3v6h-3z" fill="var(--card)"/></svg>ClearCalc</a>
   </div></header>
   <main id="main">
-
     <div class="wrap">
-      <section class="hero">
-        <p class="kicker">Educational calculators</p>
-        <h1>See how money grows, and what borrowing really costs.</h1>
-        <p>In-browser tools grouped by debt, investing, retirement, and everyday money questions. Figures are estimates from the numbers you enter — not advice.</p>
-      </section>
-      <div id="home-sections"></div>
+      <header class="page-title">
+        <h1>Required minimum distribution</h1>
+        <p>This year’s IRA or 401(k) required withdrawal from your age and last December’s balance. Uses the IRS Uniform Lifetime Table.</p>
+      </header>
+      <div class="grid layout">
+        <section class="card inputs sticky">
+          <h2>Inputs</h2>
+          <form id="form">
+            <div class="field"><label for="age">Age at the end of this year</label><input id="age" name="age" inputmode="decimal" value="73" /><span class="hint">The age you turn during the year of the withdrawal.</span></div>
+            <div class="field"><label for="balance">Balance on December 31 of last year</label><input id="balance" name="balance" inputmode="decimal" value="400000" /></div>
+          </form>
+        </section>
+        <div>
+          <section id="results" aria-live="polite"></section>
+          <details class="how"><summary>How this is calculated</summary>
+            <div class="how-body">
+              <p>Required amount is <code>December 31 balance ÷ life-expectancy factor</code> from the IRS Uniform Lifetime Table (2022 table). A spouse who is the sole beneficiary and more than 10 years younger uses a different joint table, which this calculator does not apply. This is an estimate, not tax advice.</p>
+            </div>
+          </details>
+        </div>
+      </div>
     </div>
-
   </main>
   <footer class="footer"><div class="footer-inner"></div></footer>
   <script src="js/finance.js"></script>

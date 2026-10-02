@@ -5,6 +5,7 @@ const SECTIONS = [
   { id: "debt", name: "Debt", tab: "Debt calculators" },
   { id: "investing", name: "Investing", tab: "Investing calculators" },
   { id: "everyday", name: "Everyday", tab: "Everyday calculators" },
+  { id: "retirement", name: "Retirement", tab: "Retirement calculators" },
 ];
 
 const CALCULATORS = [
@@ -18,6 +19,11 @@ const CALCULATORS = [
   { href: "fire.html", name: "FIRE planner", blurb: "FIRE number, years to get there, Coast FIRE, and a 4% withdrawal check.", section: "investing" },
   { href: "rule-of-72.html", name: "Rule of 72", blurb: "Years to double at a given rate, next to the exact compound math.", section: "investing" },
   { href: "emergency.html", name: "Emergency fund", blurb: "3, 6, or 12 months of expenses, and how long the gap takes to fill.", section: "everyday" },
+  { href: "social-security.html", name: "Social Security claiming", blurb: "62, full retirement age, or 70 — and the age where waiting breaks even.", section: "retirement" },
+  { href: "paycheck.html", name: "Retirement paycheck", blurb: "Social Security, pension, and a portfolio draw versus monthly spending.", section: "retirement" },
+  { href: "rmd.html", name: "Required minimum distribution", blurb: "This year’s IRA withdrawal from age and last December’s balance.", section: "retirement" },
+  { href: "pension.html", name: "Pension vs lump sum", blurb: "How long a lump sum lasts if you withdraw the pension amount.", section: "retirement" },
+  { href: "survivor.html", name: "Survivor income", blurb: "Monthly income left if you or your spouse dies.", section: "retirement" },
 ];
 
 const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -33,6 +39,17 @@ function formatMonths(total) {
   if (years === 0) return months === 1 ? "1 month" : months + " months";
   if (months === 0) return years === 1 ? "1 year" : years + " years";
   return (years === 1 ? "1 year " : years + " years ") + (months === 1 ? "1 month" : months + " months");
+}
+function formatAgeMonths(total) {
+  if (total == null || !Number.isFinite(total)) return "—";
+  const monthsTotal = Math.round(total);
+  const years = Math.floor(monthsTotal / 12), months = monthsTotal % 12;
+  if (months === 0) return "age " + years;
+  return "age " + years + " and " + months + (months === 1 ? " month" : " months");
+}
+function formatPercent(n, digits) {
+  if (n == null || !Number.isFinite(n)) return "—";
+  return n.toFixed(digits == null ? 1 : digits) + "%";
 }
 function formatDate(d) {
   if (!d || Number.isNaN(d.getTime())) return "—";
