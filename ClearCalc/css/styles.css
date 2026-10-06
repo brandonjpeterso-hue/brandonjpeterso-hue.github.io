@@ -70,7 +70,6 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   display: flex; align-items: stretch;
   border-top: 1px solid var(--border);
   position: relative;
-  overflow-x: auto;
 }
 .nav a, .nav summary, .icon-btn {
   display: inline-flex; align-items: center; gap: 0.25rem;
@@ -81,7 +80,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 .nav a:hover, .nav summary:hover, .icon-btn:hover { background: var(--subtle); color: var(--fg); }
 .nav a.current, .nav summary.current { color: var(--fg); }
 .nav .home-link { display: none; }
-.nav details { position: static; flex: 1 0 auto; }
+.nav details { position: static; flex: 1; }
 .nav summary {
   list-style: none; cursor: pointer; width: 100%; white-space: nowrap; display: block;
 }
@@ -107,7 +106,6 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   .header-inner { flex-wrap: nowrap; }
   .nav {
     order: 0; width: auto; margin-left: auto; border-top: 0; align-items: center;
-    overflow: visible;
   }
   .nav .home-link { display: inline-flex; }
   .nav details { position: relative; flex: none; }
